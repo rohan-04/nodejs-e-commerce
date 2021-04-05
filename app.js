@@ -8,7 +8,11 @@ const shopRoutes = require('./routes/shop');
 
 const app = express();
 
+// For parsing incoming request
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// For serving static files i.e CSS files or images, etc
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Defining Routes
 app.use('/admin', adminRoutes);
