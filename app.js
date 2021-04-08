@@ -11,7 +11,11 @@ const app = express();
 
 app.engine(
 	'hbs',
-	expressHbs({ layoutsDir: 'views/layouts/', defaultLayout: 'main-layout' })
+	expressHbs({
+		layoutsDir: 'views/layouts/',
+		defaultLayout: 'main-layout',
+		extname: 'hbs',
+	})
 );
 // app.set() sets global value which can be use in our whole app
 app.set('view engine', 'hbs');
