@@ -9,7 +9,10 @@ const shopRoutes = require('./routes/shop');
 
 const app = express();
 
-app.engine('hbs', expressHbs());
+app.engine(
+	'hbs',
+	expressHbs({ layoutsDir: 'views/layouts/', defaultLayout: 'main-layout' })
+);
 // app.set() sets global value which can be use in our whole app
 app.set('view engine', 'hbs');
 app.set('views', 'views');
