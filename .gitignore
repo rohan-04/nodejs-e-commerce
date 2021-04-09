@@ -1,1 +1,5 @@
 /node_modules
+/views/layouts
+/views/pug
+/views/handlebars
+/util
