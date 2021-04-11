@@ -1,9 +1,1 @@
-[
-	{
-		"id": "12343",
-		"title": "I,m right here!",
-		"imageUrl": "https://i.pcmag.com/imagery/reviews/038Dr5TVEpwIv8rCljx6UcF-13..1588802180.jpg",
-		"description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, ",
-		"price": "20.99"
-	}
-]
+[{"id":"12343","title":"I,m right here!","imageUrl":"https://i.pcmag.com/imagery/reviews/038Dr5TVEpwIv8rCljx6UcF-13..1588802180.jpg","description":"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, ","price":"20.99"},{"title":"where is mario","imageUrl":"https://i.pcmag.com/imagery/reviews/038Dr5TVEpwIv8rCljx6UcF-13..1588802180.jpg","description":"Lorem Ipsum is simply dummy text of the printing and typesetting industry","price":"20.00","id":"0.9356252115118804"}]
