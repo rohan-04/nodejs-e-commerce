@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+// Importing database from file strorage
 const p = path.join(
 	path.dirname(require.main.filename),
 	'data',
