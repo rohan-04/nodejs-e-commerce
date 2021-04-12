@@ -1,5 +1,7 @@
 const Product = require('../models/product');
 
+// @method: GET
+// @description: form for adding a new product
 exports.getAddProduct = (req, res, next) => {
 	res.render('admin/edit-product', {
 		pageTitle: 'Add Product',
@@ -8,6 +10,8 @@ exports.getAddProduct = (req, res, next) => {
 	});
 };
 
+// @method: POST
+// @description: Add a new product
 exports.postAddProduct = (req, res, next) => {
 	const title = req.body.title;
 	const imageUrl = req.body.imageUrl;
@@ -18,9 +22,12 @@ exports.postAddProduct = (req, res, next) => {
 	res.redirect('/');
 };
 
-// Using query params
+// @method: GET
+// @description: edit product
 exports.getEditProduct = (req, res, next) => {
+	// Using query params
 	const editMode = req.query.edit;
+
 	// console.log(req.query.edit);
 	if (!editMode) {
 		return res.redirect('/');
@@ -40,6 +47,12 @@ exports.getEditProduct = (req, res, next) => {
 	});
 };
 
+// @method: POST
+// @description: Update a product
+exports.postEditProduct = (req, res, next) => {};
+
+// @method: GET
+// @description: Get all products
 exports.getProducts = (req, res, next) => {
 	Product.fetchAll((products) => {
 		res.render('admin/products', {
