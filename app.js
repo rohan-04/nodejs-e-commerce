@@ -7,12 +7,22 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 const errorController = require('./controllers/error');
+// Database connection
+const db = require('./util/database');
 
 const app = express();
 
 // app.set() sets global value which can be use in our whole app
 app.set('view engine', 'ejs');
 app.set('views', 'views');
+
+db.execute('SELECT * FROM products')
+	.then((result) => {
+		console.log(result);
+	})
+	.catch((err) => {
+		console.log(err);
+	});
 
 // For parsing incoming request
 app.use(bodyParser.urlencoded({ extended: false }));
