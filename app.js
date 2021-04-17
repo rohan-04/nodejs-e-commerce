@@ -8,7 +8,7 @@ const shopRoutes = require('./routes/shop');
 
 const errorController = require('./controllers/error');
 // Database connection
-const db = require('./util/database');
+const sequelize = require('./util/database');
 
 const app = express();
 
@@ -17,7 +17,7 @@ app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 // For parsing incoming request
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false }));
 
 // For serving static files i.e CSS files or images or javascript, etc
 //  __dirname gives path till current file in pc
@@ -31,6 +31,15 @@ app.use('/', shopRoutes);
 // path is not given then by default it takes home route i.e '/'
 app.use(errorController.get404);
 
-// const server = http.createServer(app);
-// server.listen(3000);
-app.listen(3000);
+sequelize
+	.sync()
+	.then((result) => {
+		// console.log(result);
+
+		// const server = http.createServer(app);
+		// server.listen(3000);
+		app.listen(3000);
+	})
+	.catch((err) => {
+		console.log(err);
+	});
