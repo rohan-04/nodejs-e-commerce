@@ -17,6 +17,7 @@ exports.postAddProduct = (req, res, next) => {
 	const imageUrl = req.body.imageUrl;
 	const price = req.body.price;
 	const description = req.body.description;
+	// Create entry of new data to the DB and save
 	Product.create({
 		title: title,
 		price: price,
@@ -24,8 +25,8 @@ exports.postAddProduct = (req, res, next) => {
 		description: description,
 	})
 		.then((result) => {
-			console.log(result);
-			res.redirect('/');
+			console.log('Created Product');
+			// res.redirect('/');
 		})
 		.catch((err) => {
 			console.log(err);
@@ -38,23 +39,24 @@ exports.getEditProduct = (req, res, next) => {
 	// Using query params
 	const editMode = req.query.edit;
 
-	// console.log(req.query.edit);
 	if (!editMode) {
 		return res.redirect('/');
 	}
 	const prodId = req.params.productId;
 
-	Product.findById(prodId, (product) => {
-		if (!product) {
-			return res.redirect('/');
-		}
-		res.render('admin/edit-product', {
-			pageTitle: 'Edit Product',
-			path: '/admin/edit-product',
-			editing: editMode,
-			product: product,
-		});
-	});
+	Product.findByPk(prodId)
+		.then((product) => {
+			if (!product) {
+				return res.redirect('/');
+			}
+			res.render('admin/edit-product', {
+				pageTitle: 'Edit Product',
+				path: '/admin/edit-product',
+				editing: editMode,
+				product: product,
+			});
+		})
+		.catch((err) => console.log(err));
 };
 
 // @method: POST
@@ -65,27 +67,34 @@ exports.postEditProduct = (req, res, next) => {
 	const updatedPrice = req.body.price;
 	const updatedImageUrl = req.body.imageUrl;
 	const updatedDesc = req.body.description;
-	const updatedProduct = new Product(
-		prodId,
-		updatedTitle,
-		updatedImageUrl,
-		updatedDesc,
-		updatedPrice
-	);
-	updatedProduct.save();
-	res.redirect('/admin/products');
+	Product.findByPk(prodId)
+		.then((product) => {
+			product.title = updatedTitle;
+			product.price = updatedPrice;
+			product.description = updatedDesc;
+			product.imageUrl = updatedImageUrl;
+
+			return product.save();
+		})
+		.then((result) => {
+			console.log('UPDATED PRODUCT!');
+			res.redirect('/admin/products');
+		})
+		.catch((err) => console.log(err));
 };
 
 // @method: GET
 // @description: Get all products
 exports.getProducts = (req, res, next) => {
-	Product.fetchAll((products) => {
-		res.render('admin/products', {
-			prods: products,
-			pageTitle: 'Admin Products',
-			path: '/products',
-		});
-	});
+	Product.findAll()
+		.then((products) => {
+			res.render('admin/products', {
+				prods: products,
+				pageTitle: 'Admin Products',
+				path: '/products',
+			});
+		})
+		.catch((err) => console.log(err));
 };
 
 // @method: POST
