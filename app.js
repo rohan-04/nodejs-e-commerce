@@ -11,6 +11,8 @@ const errorController = require('./controllers/error');
 const sequelize = require('./util/database');
 const Product = require('./models/product');
 const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
 
 const app = express();
 
@@ -25,6 +27,16 @@ app.use(express.urlencoded({ extended: false }));
 //  __dirname gives path till current file in pc
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Accessing current user
+app.use((req, res, next) => {
+	User.findByPk(1)
+		.then((user) => {
+			req.user = user;
+			next();
+		})
+		.catch((err) => console.log(err));
+});
+
 // Defining Routes
 app.use('/admin', adminRoutes);
 app.use('/', shopRoutes);
@@ -37,13 +49,28 @@ app.use(errorController.get404);
 // For onDelete if user is deleted then associated product will also be deleted
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(Product);
+User.hasOne(Cart);
+Cart.belongsTo(User);
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
 
 // Converting the sequelize models define in app to mysql tables in DB
 sequelize
-	.sync({ force: true })
+	// .sync({ force: true })
+	.sync()
 	.then((result) => {
-		// console.log(result);
-
+		return User.findByPk(1);
+	})
+	.then((user) => {
+		if (!user) {
+			return User.create({ name: 'Rohan', email: 'test@test.com' });
+		}
+		return user;
+	})
+	.then((user) => {
+		return user.createCart();
+	})
+	.then((cart) => {
 		// const server = http.createServer(app);
 		// server.listen(3000);
 		app.listen(3000);
