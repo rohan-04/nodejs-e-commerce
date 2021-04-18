@@ -9,6 +9,8 @@ const shopRoutes = require('./routes/shop');
 const errorController = require('./controllers/error');
 // Database connection
 const sequelize = require('./util/database');
+const Product = require('./models/product');
+const User = require('./models/user');
 
 const app = express();
 
@@ -31,8 +33,14 @@ app.use('/', shopRoutes);
 // path is not given then by default it takes home route i.e '/'
 app.use(errorController.get404);
 
+// Association
+// For onDelete if user is deleted then associated product will also be deleted
+Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
+User.hasMany(Product);
+
+// Converting the sequelize models define in app to mysql tables in DB
 sequelize
-	.sync()
+	.sync({ force: true })
 	.then((result) => {
 		// console.log(result);
 
