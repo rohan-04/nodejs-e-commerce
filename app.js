@@ -7,18 +7,13 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 const errorController = require('./controllers/error');
-// Database connection
-const sequelize = require('./util/database');
-const Product = require('./models/product');
-const User = require('./models/user');
-const Cart = require('./models/cart');
-const CartItem = require('./models/cart-item');
-const Order = require('./models/order');
-const OrderItem = require('./models/order-item');
+
+// TODO: Database connection
 
 const app = express();
 
 // app.set() sets global value which can be use in our whole app
+// Sets the template engine
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
@@ -31,12 +26,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Accessing current user
 app.use((req, res, next) => {
-	User.findByPk(1)
-		.then((user) => {
-			req.user = user;
-			next();
-		})
-		.catch((err) => console.log(err));
+	// User.findByPk(1)
+	// 	.then((user) => {
+	// 		req.user = user;
+	// 		next();
+	// 	})
+	// 	.catch((err) => console.log(err));
 });
 
 // Defining Routes
@@ -47,39 +42,4 @@ app.use('/', shopRoutes);
 // path is not given then by default it takes home route i.e '/'
 app.use(errorController.get404);
 
-// Association
-// For onDelete if user is deleted then associated product will also be deleted
-Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
-User.hasMany(Product);
-User.hasOne(Cart);
-Cart.belongsTo(User);
-Cart.belongsToMany(Product, { through: CartItem });
-Product.belongsToMany(Cart, { through: CartItem });
-Order.belongsTo(User);
-User.hasMany(Order);
-Order.belongsToMany(Product, { through: OrderItem });
-
-// Converting the sequelize models define in app to mysql tables in DB
-sequelize
-	// .sync({ force: true })
-	.sync()
-	.then((result) => {
-		return User.findByPk(1);
-	})
-	.then((user) => {
-		if (!user) {
-			return User.create({ name: 'Rohan', email: 'test@test.com' });
-		}
-		return user;
-	})
-	.then((user) => {
-		return user.createCart();
-	})
-	.then((cart) => {
-		// const server = http.createServer(app);
-		// server.listen(3000);
-		app.listen(3000);
-	})
-	.catch((err) => {
-		console.log(err);
-	});
+app.listen(3000);

@@ -183,19 +183,16 @@ exports.postOrder = (req, res, next) => {
 };
 
 // @method: GET
-// @description:
+// @description: To get a list of orders
 exports.getOrders = (req, res, next) => {
-	res.render('shop/orders', {
-		path: '/orders',
-		pageTitle: 'Your Orders',
-	});
-};
-
-// @method: GET
-// @description: Go to the checkout page
-exports.getCheckout = (req, res, next) => {
-	res.render('shop/checkout', {
-		path: '/checkout',
-		pageTitle: 'Checkout',
-	});
+	req.user
+		.getOrders({ include: ['products'] })
+		.then((orders) => {
+			res.render('shop/orders', {
+				path: '/orders',
+				pageTitle: 'Your Orders',
+				orders: orders,
+			});
+		})
+		.catch((err) => console.log(err));
 };
