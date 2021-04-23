@@ -3,12 +3,13 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
+// const adminRoutes = require('./routes/admin');
+// const shopRoutes = require('./routes/shop');
 
 const errorController = require('./controllers/error');
 
-// TODO: Database connection
+// Database connection
+const mongoConnect = require('./util/database');
 
 const app = express();
 
@@ -34,12 +35,15 @@ app.use((req, res, next) => {
 	// 	.catch((err) => console.log(err));
 });
 
-// Defining Routes
-app.use('/admin', adminRoutes);
-app.use('/', shopRoutes);
+// // Defining Routes
+// app.use('/admin', adminRoutes);
+// app.use('/', shopRoutes);
 
 // 404 Page
 // path is not given then by default it takes home route i.e '/'
 app.use(errorController.get404);
 
-app.listen(3000);
+mongoConnect((client) => {
+	console.log(client);
+	app.listen(3000);
+});
