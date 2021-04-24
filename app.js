@@ -8,6 +8,7 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 const errorController = require('./controllers/error');
+const User = require('./models/user');
 
 const app = express();
 
@@ -24,14 +25,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Accessing current user
-// app.use((req, res, next) => {
-// User.findByPk(1)
-// 	.then((user) => {
-// 		req.user = user;
-// 		next();
-// 	})
-// 	.catch((err) => console.log(err));
-// });
+app.use((req, res, next) => {
+	User.findById('60846320f825a7cc63848bee')
+		.then((user) => {
+			req.user = user;
+			next();
+		})
+		.catch((err) => console.log(err));
+});
 
 // Defining Routes
 app.use('/admin', adminRoutes);
@@ -48,6 +49,19 @@ mongoose
 		{ useNewUrlParser: true, useUnifiedTopology: true }
 	)
 	.then((result) => {
+		User.findOne().then((user) => {
+			if (!user) {
+				const user = new User({
+					name: 'Rohan',
+					email: 'test@gmail.com',
+					cart: {
+						items: [],
+					},
+				});
+				user.save();
+			}
+		});
+
 		app.listen(3000);
 	})
 	.catch((err) => {
