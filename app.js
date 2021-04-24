@@ -2,14 +2,12 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 // const adminRoutes = require('./routes/admin');
 // const shopRoutes = require('./routes/shop');
 
 const errorController = require('./controllers/error');
-
-// Database connection
-const mongoConnect = require('./util/database');
 
 const app = express();
 
@@ -43,7 +41,14 @@ app.use((req, res, next) => {
 // path is not given then by default it takes home route i.e '/'
 app.use(errorController.get404);
 
-mongoConnect((client) => {
-	console.log(client);
-	app.listen(3000);
-});
+// Database connection
+mongoose
+	.connect(
+		'mongodb+srv://rohan:FGPpGSMKkkesMw81@cluster0.g5py1.mongodb.net/shop?retryWrites=true&w=majority'
+	)
+	.then((result) => {
+		app.listen(3000);
+	})
+	.catch((err) => {
+		console.log(err);
+	});
