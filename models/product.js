@@ -1,29 +1,26 @@
-const Sequelize = require('sequelize');
+const mongoose = require('mongoose');
 
-const sequelize = require('../util/database');
+const Schema = mongoose.Schema;
 
-// It defines table in DB
-const Product = sequelize.define('product', {
-	id: {
-		type: Sequelize.INTEGER,
-		autoIncrement: true,
-		allowNull: false,
-		primaryKey: true,
+const productSchema = new Schema({
+	title: {
+		type: String,
+		required: true,
 	},
-
-	title: Sequelize.STRING,
 	price: {
-		type: Sequelize.DOUBLE,
-		allowNull: false,
-	},
-	imageUrl: {
-		type: Sequelize.STRING,
-		allowNull: false,
+		type: Number,
+		required: true,
 	},
 	description: {
-		type: Sequelize.STRING,
-		allowNull: false,
+		type: String,
+		required: true,
+	},
+	imageUrl: {
+		type: String,
+		required: true,
 	},
 });
 
-module.exports = Product;
+//  'Product' is coverted in lowercase in plural form in DB
+//  this is what the name of collection shown
+module.exports = mongoose.model('Product', productSchema);
