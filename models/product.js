@@ -19,6 +19,12 @@ const productSchema = new Schema({
 		type: String,
 		required: true,
 	},
+
+	userId: {
+		type: Schema.Types.ObjectId,
+		ref: 'User', // creating relations
+		required: true,
+	},
 });
 
 //  'Product' is coverted in lowercase in plural form in DB

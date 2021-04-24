@@ -22,6 +22,7 @@ exports.postAddProduct = (req, res, next) => {
 		price: price,
 		description: description,
 		imageUrl: imageUrl,
+		userId: req.user, // this will only pick the id of user i.e _id
 	});
 	product
 		.save()
