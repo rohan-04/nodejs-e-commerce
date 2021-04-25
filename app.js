@@ -3,6 +3,8 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
@@ -11,7 +13,14 @@ const authRoutes = require('./routes/auth');
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
+const MONGODB_URI =
+	'mongodb+srv://rohan:FGPpGSMKkkesMw81@cluster0.g5py1.mongodb.net/shop?retryWrites=true&w=majority';
+
 const app = express();
+const store = new MongoDBStore({
+	uri: MONGODB_URI,
+	collection: 'sessions',
+});
 
 // app.set() sets global value which can be use in our whole app
 // Sets the template engine
@@ -23,7 +32,18 @@ app.use(express.urlencoded({ extended: false }));
 
 // For serving static files i.e CSS files or images or javascript, etc
 //  __dirname gives path till current file in pc
+
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware for setting up session and storing in mongoDB
+app.use(
+	session({
+		secret: 'my secret',
+		resave: false,
+		saveUninitialized: false,
+		store: store,
+	})
+);
 
 // Accessing current user
 app.use((req, res, next) => {
@@ -46,10 +66,7 @@ app.use(errorController.get404);
 
 // Database connection
 mongoose
-	.connect(
-		'mongodb+srv://rohan:FGPpGSMKkkesMw81@cluster0.g5py1.mongodb.net/shop?retryWrites=true&w=majority',
-		{ useNewUrlParser: true, useUnifiedTopology: true }
-	)
+	.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 	.then((result) => {
 		User.findOne().then((user) => {
 			if (!user) {
