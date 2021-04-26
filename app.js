@@ -17,6 +17,7 @@ const MONGODB_URI =
 	'mongodb+srv://rohan:FGPpGSMKkkesMw81@cluster0.g5py1.mongodb.net/shop?retryWrites=true&w=majority';
 
 const app = express();
+// Storing session data in mongoDB
 const store = new MongoDBStore({
 	uri: MONGODB_URI,
 	collection: 'sessions',
@@ -70,19 +71,6 @@ app.use(errorController.get404);
 mongoose
 	.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 	.then((result) => {
-		User.findOne().then((user) => {
-			if (!user) {
-				const user = new User({
-					name: 'Rohan',
-					email: 'test@gmail.com',
-					cart: {
-						items: [],
-					},
-				});
-				user.save();
-			}
-		});
-
 		app.listen(3000);
 	})
 	.catch((err) => {
