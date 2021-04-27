@@ -1,6 +1,18 @@
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
 
 const User = require('../models/user');
+
+// configuring the nodemailer
+const transporter = nodemailer.createTransport({
+	name: 'mathurrohan04@gmail.com',
+	host: 'smtp.mailtrap.io',
+	port: 2525,
+	auth: {
+		user: '7c269d0e278fe5',
+		pass: '1f43476d63a43e',
+	},
+});
 
 // @method: GET
 // @description: To goto login page
@@ -92,6 +104,16 @@ exports.postSignup = (req, res, next) => {
 				})
 				.then((result) => {
 					res.redirect('/login');
+					// Sending mails
+					return transporter.sendMail({
+						from: '"Node project" <mathurrohan04@gmail.com>',
+						to: email,
+						subject: 'Signup succeeded!',
+						html: '<h1>You successfully signed up 🎉</h1>',
+					});
+				})
+				.catch((err) => {
+					console.log(err);
 				});
 		})
 		.catch((err) => console.log(err));
