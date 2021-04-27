@@ -2,16 +2,25 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
 
+// @method: GET
+// @description: To goto login page
 exports.getLogin = (req, res, next) => {
-	// Retrieving a Cookie
-	// const isLoggedIn =
-	// 	req.get('Cookie').split(';')[2].trim().split('=')[1] === 'true';
+	let message = req.flash('error');
+	console.log(message);
+	if (message.length > 0) {
+		message = message[0];
+	} else {
+		message = null;
+	}
 	res.render('auth/login', {
 		path: '/login',
 		pageTitle: 'Login',
+		errorMessage: message,
 	});
 };
 
+// @method: GET
+// @description: To goto signup page
 exports.getSignup = (req, res, next) => {
 	res.render('auth/signup', {
 		path: '/signup',
@@ -19,12 +28,15 @@ exports.getSignup = (req, res, next) => {
 	});
 };
 
+// @method: POST
+// @description: Login for existing user
 exports.postLogin = (req, res, next) => {
 	const email = req.body.email;
 	const password = req.body.password;
 	User.findOne({ email: email })
 		.then((user) => {
 			if (!user) {
+				req.flash('error', 'Invalid email or password!');
 				return res.redirect('/login');
 			}
 			bcrypt
@@ -48,6 +60,8 @@ exports.postLogin = (req, res, next) => {
 		.catch((err) => console.log(err));
 };
 
+// @method: POST
+// @description: To signup for new user
 exports.postSignup = (req, res, next) => {
 	const email = req.body.email;
 	const password = req.body.password;
@@ -75,6 +89,8 @@ exports.postSignup = (req, res, next) => {
 		.catch((err) => console.log(err));
 };
 
+// @method: POST
+// @description: To logout
 exports.postLogout = (req, res, next) => {
 	req.session.destroy((err) => {
 		console.log(err);
