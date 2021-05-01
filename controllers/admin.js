@@ -73,16 +73,18 @@ exports.postEditProduct = (req, res, next) => {
 
 	Product.findById(prodId)
 		.then((product) => {
-			console.log(product);
+			// Check for authorization
+			if (product.userId.toString() != req.user._id.toString()) {
+				res.redirect('/');
+			}
 			product.title = updatedTitle;
 			product.price = updatedPrice;
 			product.description = updatedDesc;
 			product.imageUrl = updatedImageUrl;
-			return product.save();
-		})
-		.then((result) => {
-			console.log('UPDATED PRODUCT!');
-			res.redirect('/admin/products');
+			return product.save().then((result) => {
+				console.log('UPDATED PRODUCT!');
+				res.redirect('/admin/products');
+			});
 		})
 		.catch((err) => console.log(err));
 };
@@ -90,7 +92,9 @@ exports.postEditProduct = (req, res, next) => {
 // @method: GET
 // @description: Get all products
 exports.getProducts = (req, res, next) => {
-	Product.find()
+	// Only allowing user to edit or delete products which are added by them only
+	// Authorization
+	Product.find({ userId: req.user._id })
 		// .select('title price -_id')
 		// .populate('userId', 'name')
 		.then((products) => {
@@ -109,7 +113,7 @@ exports.getProducts = (req, res, next) => {
 // @description: Deleting a product
 exports.postDeleteProduct = (req, res, next) => {
 	const prodId = req.body.productId;
-	Product.findByIdAndRemove(prodId)
+	Product.deleteOne({ _id: prodId, userId: req.user._id })
 		.then((result) => {
 			console.log('DESTROYED PRODUCT');
 			res.redirect('/admin/products');
