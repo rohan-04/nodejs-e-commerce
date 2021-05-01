@@ -78,7 +78,6 @@ app.use((req, res, next) => {
 app.use('/admin', adminRoutes);
 app.use('/', shopRoutes);
 app.use('/', authRoutes);
-
 // 404 Page
 // path is not given then by default it takes home route i.e '/'
 app.use(errorController.get404);

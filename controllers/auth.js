@@ -163,7 +163,7 @@ exports.postReset = (req, res, next) => {
 					return res.redirect('/reset');
 				}
 				user.resetToken = token;
-				user.resetTokenExpiration = Date.now() + 3600000;
+				user.resetTokenExpiration = Date().now + 3600000; // 1 hour
 				return user.save();
 			})
 			.then((result) => {
@@ -183,4 +183,65 @@ exports.postReset = (req, res, next) => {
 				console.log(err);
 			});
 	});
+};
+
+// @method: GET
+// @description: Displaying form for reset password
+exports.getNewPassword = (req, res, next) => {
+	const token = req.params.token;
+	// Checking if token is valid or not
+	// #gt means greater then
+	User.findOne({
+		resetToken: token,
+		resetTokenExpiration: { $gt: new Date() },
+	})
+		.then((user) => {
+			console.log(new Date());
+			console.log(user);
+			let message = req.flash('error');
+			if (message.length > 0) {
+				message = message[0];
+			} else {
+				message = null;
+			}
+			res.render('auth/new-password', {
+				path: '/new-password',
+				pageTitle: 'New password',
+				errorMessage: message,
+				userId: user._id.toString(),
+				passwordToken: token,
+			});
+		})
+		.catch((err) => console.log(err));
+};
+
+// @method: POST
+// @description: Reset password logic
+exports.postNewPassword = (req, res, next) => {
+	const newPassword = req.body.password;
+	const userId = req.body.userId;
+	const passwordToken = req.body.passwordToken;
+	let resetUser;
+
+	User.findOne({
+		resetToken: passwordToken,
+		resetTokenExpiration: { $gt: Date.now() },
+		_id: userId,
+	})
+		.then((user) => {
+			resetUser = user;
+			return bcrypt.hash(newPassword, 12);
+		})
+		.then((hashedPassword) => {
+			resetUser.password = hashedPassword;
+			resetUser.resetToken = undefined;
+			resetUser.resetTokenExpiration = undefined;
+			return resetUser.save();
+		})
+		.then((result) => {
+			res.redirect('/login');
+		})
+		.catch((err) => {
+			console.log(err);
+		});
 };
