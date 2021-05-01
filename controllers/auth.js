@@ -1,3 +1,5 @@
+const crypto = require('crypto'); // To generate tokens
+
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 
@@ -5,7 +7,7 @@ const User = require('../models/user');
 
 // configuring the nodemailer
 const transporter = nodemailer.createTransport({
-	name: 'mathurrohan04@gmail.com',
+	name: 'nodeproject',
 	host: 'smtp.mailtrap.io',
 	port: 2525,
 	auth: {
@@ -125,5 +127,60 @@ exports.postLogout = (req, res, next) => {
 	req.session.destroy((err) => {
 		console.log(err);
 		res.redirect('/');
+	});
+};
+
+// @method: GET
+// @description: To goto the reset page
+exports.getReset = (req, res, next) => {
+	let message = req.flash('error');
+	if (message.length > 0) {
+		message = message[0];
+	} else {
+		message = null;
+	}
+	res.render('auth/reset', {
+		path: '/reset',
+		pageTitle: 'Reset password',
+		errorMessage: message,
+	});
+};
+
+// @method: POST
+// @description: Resetting the password
+exports.postReset = (req, res, next) => {
+	// Generating token for password reset
+	crypto.randomBytes(32, (err, buffer) => {
+		if (err) {
+			console.log(err);
+			return res.redirect('/reset');
+		}
+		const token = buffer.toString('hex');
+		User.findOne({ email: req.body.email })
+			.then((user) => {
+				if (!user) {
+					req.flash('error', 'No account with that email found.');
+					return res.redirect('/reset');
+				}
+				user.resetToken = token;
+				user.resetTokenExpiration = Date.now() + 3600000;
+				return user.save();
+			})
+			.then((result) => {
+				res.redirect('/');
+				// Sending mail for reset password
+				transporter.sendMail({
+					from: '"Node project" <mathurrohan04@gmail.com>',
+					to: req.body.email,
+					subject: 'Password reset!',
+					html: `
+					<p>You requested a password reset</p>
+					<p>Click this <a href = "http://localhost:3000/reset/${token}}">link</a> to set a new password.</p>
+					`,
+				});
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	});
 };
