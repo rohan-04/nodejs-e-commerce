@@ -87,7 +87,7 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
 	const email = req.body.email;
 	const password = req.body.password;
-	const confirmPassword = req.body.confirmPassword;
+
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
@@ -99,38 +99,36 @@ exports.postSignup = (req, res, next) => {
 		});
 	}
 
-	User.findOne({ email: email })
-		.then((userDoc) => {
-			if (userDoc) {
-				req.flash('error', 'Email already exists, please use another one.');
-				return res.redirect('/signup');
-			}
-			return bcrypt
-				.hash(password, 12)
-				.then((hashedPassword) => {
-					const user = new User({
-						email: email,
-						password: hashedPassword,
-						cart: { items: [] },
-					});
+	// User.findOne({ email: email });
+	// .then((userDoc) => {
+	// 	if (userDoc) {
+	// 		req.flash('error', 'Email already exists, please use another one.');
+	// 		return res.redirect('/signup');
+	// 	}
+	bcrypt
+		.hash(password, 12)
+		.then((hashedPassword) => {
+			const user = new User({
+				email: email,
+				password: hashedPassword,
+				cart: { items: [] },
+			});
 
-					return user.save();
-				})
-				.then((result) => {
-					res.redirect('/login');
-					// Sending mails
-					return transporter.sendMail({
-						from: '"Node project" <mathurrohan04@gmail.com>',
-						to: email,
-						subject: 'Signup succeeded!',
-						html: '<h1>You successfully signed up 🎉</h1>',
-					});
-				})
-				.catch((err) => {
-					console.log(err);
-				});
+			return user.save();
 		})
-		.catch((err) => console.log(err));
+		.then((result) => {
+			res.redirect('/login');
+			// Sending mails
+			return transporter.sendMail({
+				from: '"Node project" <mathurrohan04@gmail.com>',
+				to: email,
+				subject: 'Signup succeeded!',
+				html: '<h1>You successfully signed up 🎉</h1>',
+			});
+		})
+		.catch((err) => {
+			console.log(err);
+		});
 };
 
 // @method: POST
