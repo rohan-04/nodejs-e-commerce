@@ -2,6 +2,7 @@ const crypto = require('crypto'); // To generate tokens
 
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+const { validationResult } = require('express-validator');
 
 const User = require('../models/user');
 
@@ -87,6 +88,18 @@ exports.postSignup = (req, res, next) => {
 	const email = req.body.email;
 	const password = req.body.password;
 	const confirmPassword = req.body.confirmPassword;
+	const errors = validationResult(req);
+
+	if (!errors.isEmpty()) {
+		console.log(errors.array());
+		// Status code 422 in validation failed error
+		return res.status(422).render('auth/signup', {
+			path: '/signup',
+			pageTitle: 'Signup',
+			errorMessage: errors.array(),
+		});
+	}
+
 	User.findOne({ email: email })
 		.then((userDoc) => {
 			if (userDoc) {
@@ -163,7 +176,8 @@ exports.postReset = (req, res, next) => {
 					return res.redirect('/reset');
 				}
 				user.resetToken = token;
-				user.resetTokenExpiration = Date().now + 3600000; // 1 hour
+				user.resetTokenExpiration = Date.now() + 3600000; // 1 hour
+				// console.log('In DB:', user.resetTokenExpiration);
 				return user.save();
 			})
 			.then((result) => {
@@ -196,8 +210,6 @@ exports.getNewPassword = (req, res, next) => {
 		resetTokenExpiration: { $gt: new Date() },
 	})
 		.then((user) => {
-			console.log(new Date());
-			console.log(user);
 			let message = req.flash('error');
 			if (message.length > 0) {
 				message = message[0];
