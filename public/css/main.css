@@ -262,3 +262,11 @@ form {
 		width: 30rem;
 	}
 }
+
+.error-500 {
+	text-align: center;
+}
+
+.error-404 {
+	text-align: center;
+}

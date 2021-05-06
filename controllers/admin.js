@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const { validationResult } = require('express-validator');
 
 const Product = require('../models/product');
@@ -49,6 +51,7 @@ exports.postAddProduct = (req, res, next) => {
 		imageUrl: imageUrl,
 		userId: req.user,
 	});
+
 	product
 		.save()
 		.then((result) => {
@@ -57,7 +60,10 @@ exports.postAddProduct = (req, res, next) => {
 			res.redirect('/admin/products');
 		})
 		.catch((err) => {
-			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			// It will skip all the in between middlewares and will goto error handling middleware
+			return next(error);
 		});
 };
 
@@ -86,7 +92,12 @@ exports.getEditProduct = (req, res, next) => {
 				validationErrors: [],
 			});
 		})
-		.catch((err) => console.log(err));
+		.catch((err) => {
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			// It will skip all the in between middlewares and will goto error handling middleware
+			return next(error);
+		});
 };
 
 // @method: POST
@@ -111,6 +122,7 @@ exports.postEditProduct = (req, res, next) => {
 				imageUrl: updatedImageUrl,
 				price: updatedPrice,
 				description: updatedDesc,
+				_id: prodId,
 			},
 			errorMessage: errors.array()[0].msg,
 			validationErrors: errors.array(),
