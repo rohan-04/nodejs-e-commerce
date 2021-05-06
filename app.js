@@ -55,6 +55,14 @@ app.use(csrfProtection);
 app.use(flash());
 
 app.use((req, res, next) => {
+	// res.locals allows as to create local variables
+	// which are passed into the views
+	res.locals.isAuthenticated = req.session.isLoggedIn;
+	res.locals.csrfToken = req.csrfToken();
+	next();
+});
+
+app.use((req, res, next) => {
 	if (!req.session.user) {
 		return next();
 	}
@@ -69,14 +77,6 @@ app.use((req, res, next) => {
 		.catch((err) => {
 			throw new Error(err);
 		});
-});
-
-app.use((req, res, next) => {
-	// res.locals allows as to create local variables
-	// which are passed into the views
-	res.locals.isAuthenticated = req.session.isLoggedIn;
-	res.locals.csrfToken = req.csrfToken();
-	next();
 });
 
 // Defining Routes
