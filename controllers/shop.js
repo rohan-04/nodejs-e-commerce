@@ -1,6 +1,10 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
 
+const stripe = require('stripe')(
+	'sk_test_51IoYIPSEDQ7qrtnz5Us20hkEnA4sUCOHYn0tC3eUWNBfXiZFlvzqB2ixwkbWBpD83YfN8fjsKTDaSO3RKVTkPEbT00ZxDKMYNp'
+);
+
 const ITEMS_PER_PAGE = 3;
 
 // @method: GET
@@ -19,7 +23,7 @@ exports.getProducts = (req, res, next) => {
 		})
 		.then((products) => {
 			res.render('shop/product-list', {
-				prods: products,
+				prods: products.reverse(),
 				pageTitle: 'Products',
 				path: '/products',
 				currentPage: page,
@@ -147,9 +151,56 @@ exports.postCartDeleteProduct = (req, res, next) => {
 		});
 };
 
-// @method: POST
+// @method: GET
+// @description: To goto checkout page
+exports.getCheckout = (req, res, next) => {
+	let products;
+	let total;
+	req.user
+		.populate('cart.items.productId')
+		.execPopulate()
+		.then((user) => {
+			products = user.cart.items;
+			total = 0;
+			products.forEach((p) => {
+				total += p.quantity * p.productId.price;
+			});
+			return stripe.checkout.sessions.create({
+				payment_method_types: ['card'],
+				line_items: products.map((p) => {
+					return {
+						name: p.productId.title,
+						description: p.productId.description,
+						amount: Math.round(p.productId.price * 100),
+						currency: 'inr',
+						quantity: p.quantity,
+					};
+				}),
+				success_url:
+					req.protocol + '://' + req.get('host') + '/checkout/success', // => http://localhost:3000
+				cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel',
+			});
+		})
+		.then((session) => {
+			res.render('shop/checkout', {
+				path: '/checkout',
+				pageTitle: 'Checkout',
+				products: products.reverse(),
+				totalSum: total,
+				sessionId: session.id,
+			});
+		})
+		.catch((err) => {
+			// console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			return next(error);
+		});
+};
+
+// @method: GET
 // @description: For clearing cart and redirect to checkout
-exports.postOrder = (req, res, next) => {
+exports.getCheckoutSuccess = (req, res, next) => {
 	req.user
 		.populate('cart.items.productId')
 		.execPopulate()
@@ -187,7 +238,7 @@ exports.getOrders = (req, res, next) => {
 			res.render('shop/orders', {
 				path: '/orders',
 				pageTitle: 'Your Orders',
-				orders: orders,
+				orders: orders.reverse(),
 			});
 		})
 		.catch((err) => {
