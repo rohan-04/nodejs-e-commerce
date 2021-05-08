@@ -1,9 +1,7 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
 
-const stripe = require('stripe')(
-	'sk_test_51IoYIPSEDQ7qrtnz5Us20hkEnA4sUCOHYn0tC3eUWNBfXiZFlvzqB2ixwkbWBpD83YfN8fjsKTDaSO3RKVTkPEbT00ZxDKMYNp'
-);
+const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 const ITEMS_PER_PAGE = 3;
 

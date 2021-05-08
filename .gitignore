@@ -3,3 +3,4 @@
 /views/pug
 /views/handlebars
 /util
+/nodemon.json
